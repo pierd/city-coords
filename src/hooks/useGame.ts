@@ -23,6 +23,7 @@ import {
   saveDailyProgress,
   completeDailyChallenge,
 } from '../utils/dailyStorage';
+import type { AnyChallengeData, ChallengeData, ClassicChallengeData } from '../utils/challengeUrl';
 
 export interface AttemptResult {
   guess: City;
@@ -38,6 +39,19 @@ export interface RoundResult {
   guess: City | null;
   isCorrect: boolean;
   distance: number | null;
+}
+
+// Opponent data for challenge mode
+export interface OpponentData {
+  guesses: string[]; // City names for single-city modes
+  solved: boolean;
+  history?: Array<{
+    cityName: string;
+    guessName: string | null;
+    distance: number | null;
+  }>; // For classic mode
+  score?: number;
+  medianDistance?: number | null;
 }
 
 export interface GameState {
@@ -56,6 +70,9 @@ export interface GameState {
   attempts: AttemptResult[];
   bestDistance: number | null;
   seed: string;
+  // Challenge mode data
+  isChallenge: boolean;
+  opponent: OpponentData | null;
 }
 
 // City with all language variants for search
@@ -131,12 +148,40 @@ function getCityForMode(
   return { city: capitals[cityIndex], index: cityIndex };
 }
 
-function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
+function initializeGameState(
+  mode: GameMode,
+  existingSeed?: string,
+  challengeData?: AnyChallengeData | null
+): GameState {
   const config = GAME_MODE_CONFIGS[mode];
 
-  // Determine seed based on mode
+  // Determine seed based on mode or challenge data
   let seed: string;
-  if (mode === 'daily') {
+  let opponent: OpponentData | null = null;
+  const isChallenge = !!challengeData;
+
+  if (challengeData) {
+    // Use seed from challenge
+    seed = challengeData.seed;
+
+    // Extract opponent data
+    if (challengeData.mode === 'classic') {
+      const classicData = challengeData as ClassicChallengeData;
+      opponent = {
+        guesses: [],
+        solved: false,
+        history: classicData.opponentHistory,
+        score: classicData.opponentScore,
+        medianDistance: classicData.opponentMedianDistance,
+      };
+    } else {
+      const singleData = challengeData as ChallengeData;
+      opponent = {
+        guesses: singleData.opponentGuesses,
+        solved: singleData.opponentSolved,
+      };
+    }
+  } else if (mode === 'daily') {
     seed = getTodaySeed();
   } else if (existingSeed) {
     seed = existingSeed;
@@ -144,8 +189,8 @@ function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
     seed = generateRandomSeed();
   }
 
-  // Check for existing daily progress
-  if (mode === 'daily') {
+  // Check for existing daily progress (but not if playing a challenge)
+  if (mode === 'daily' && !isChallenge) {
     const existingProgress = getTodayProgress();
     if (existingProgress) {
       const { city, index } = getCityForMode(mode, seed, 0, new Set());
@@ -190,6 +235,8 @@ function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
         attempts,
         bestDistance,
         seed,
+        isChallenge: false,
+        opponent: null,
       };
     }
   }
@@ -212,6 +259,8 @@ function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
     attempts: [],
     bestDistance: null,
     seed,
+    isChallenge,
+    opponent,
   };
 }
 
@@ -242,8 +291,8 @@ export function useGame() {
     });
   }, [searchableCities, currentLang]);
 
-  const startGame = useCallback((mode: GameMode) => {
-    setGameState(initializeGameState(mode));
+  const startGame = useCallback((mode: GameMode, challengeData?: AnyChallengeData | null) => {
+    setGameState(initializeGameState(mode, undefined, challengeData));
   }, []);
 
   const searchCities = useCallback(

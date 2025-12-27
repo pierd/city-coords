@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGame } from './hooks/useGame';
 import { CoordinateDisplay } from './components/CoordinateDisplay';
@@ -11,6 +12,7 @@ import { AttemptHistory } from './components/AttemptHistory';
 import { ChallengeScoreBoard } from './components/ChallengeScoreBoard';
 import { ChallengeResult } from './components/ChallengeResult';
 import type { GameMode } from './types/gameMode';
+import { getChallengeFromUrl, clearChallengeFromUrl } from './utils/challengeUrl';
 import './App.css';
 
 function App() {
@@ -25,6 +27,22 @@ function App() {
     resetGame,
     goToMenu,
   } = useGame();
+
+  const challengeChecked = useRef(false);
+
+  // Check for challenge URL on mount
+  useEffect(() => {
+    if (challengeChecked.current) return;
+    challengeChecked.current = true;
+
+    const challengeData = getChallengeFromUrl();
+    if (challengeData) {
+      // Clear the URL parameter
+      clearChallengeFromUrl();
+      // Start game with challenge data
+      startGame(challengeData.mode, challengeData);
+    }
+  }, [startGame]);
 
   const handleSelectMode = (mode: GameMode) => {
     startGame(mode);
@@ -100,6 +118,9 @@ function App() {
             bestDistance={bestDistance}
             onPlayAgain={handlePlayAgain}
             onBackToMenu={goToMenu}
+            seed={gameState.seed}
+            isChallenge={gameState.isChallenge}
+            opponent={gameState.opponent}
           />
         </main>
       </div>
@@ -129,6 +150,9 @@ function App() {
             medianDistance={medianDistance}
             onRestart={resetGame}
             history={history}
+            seed={gameState.seed}
+            isChallenge={gameState.isChallenge}
+            opponent={gameState.opponent}
           />
         </main>
       </div>

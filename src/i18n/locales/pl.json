@@ -101,5 +101,15 @@
   },
   "game": {
     "backToMenu": "Powrót do menu"
+  },
+  "challengeFriend": {
+    "button": "Wyzwij znajomego",
+    "copied": "Skopiowano link!",
+    "comparison": "Wynik wyzwania",
+    "you": "Ty",
+    "opponent": "Znajomy",
+    "youWin": "🎉 Wygrywasz!",
+    "youLose": "Tym razem znajomy był lepszy!",
+    "tie": "Remis!"
   }
 }

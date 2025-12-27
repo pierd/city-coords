@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { RoundResult } from '../hooks/useGame';
+import type { RoundResult, OpponentData } from '../hooks/useGame';
 import { useTranslatedCity } from '../hooks/useTranslatedCity';
+import { generateClassicChallengeUrl, copyToClipboard } from '../utils/challengeUrl';
 
 interface GameOverProps {
   score: number;
@@ -8,11 +10,59 @@ interface GameOverProps {
   medianDistance: number | null;
   onRestart: () => void;
   history: RoundResult[];
+  // Challenge mode props
+  seed: string;
+  isChallenge: boolean;
+  opponent: OpponentData | null;
 }
 
-export function GameOver({ score, totalRounds, medianDistance, onRestart, history }: GameOverProps) {
+export function GameOver({
+  score,
+  totalRounds,
+  medianDistance,
+  onRestart,
+  history,
+  seed,
+  isChallenge,
+  opponent,
+}: GameOverProps) {
   const { t } = useTranslation();
   const { getDisplayName, getDisplayCountry } = useTranslatedCity();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyChallenge = async () => {
+    const url = generateClassicChallengeUrl(seed, history, score, medianDistance);
+    const success = await copyToClipboard(url);
+
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  // Determine winner when playing a challenge
+  const getChallengeResult = () => {
+    if (!isChallenge || !opponent) return null;
+
+    const yourScore = score;
+    const opponentScore = opponent.score ?? 0;
+    const yourMedian = medianDistance;
+    const opponentMedian = opponent.medianDistance;
+
+    // Compare by perfect guesses first
+    if (yourScore > opponentScore) return 'win';
+    if (yourScore < opponentScore) return 'lose';
+
+    // Tie-breaker: lower median distance wins
+    if (yourMedian !== null && opponentMedian !== null) {
+      if (yourMedian < opponentMedian) return 'win';
+      if (yourMedian > opponentMedian) return 'lose';
+    }
+
+    return 'tie';
+  };
+
+  const challengeResult = getChallengeResult();
 
   // Get message based on median distance (lower is better)
   const getMessage = () => {
@@ -86,22 +136,71 @@ export function GameOver({ score, totalRounds, medianDistance, onRestart, histor
         </div>
       </div>
 
-      <button className="restart-button" onClick={onRestart}>
-        {t('gameOver.playAgain')}
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="23 4 23 10 17 10" />
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-        </svg>
-      </button>
+      {/* Challenge comparison */}
+      {isChallenge && opponent && (
+        <div className="challenge-comparison classic-comparison">
+          <h3 className="comparison-title">{t('challengeFriend.comparison')}</h3>
+          <div className="comparison-grid">
+            <div className={`comparison-player ${challengeResult === 'win' ? 'winner' : ''}`}>
+              <span className="player-label">{t('challengeFriend.you')}</span>
+              <div className="player-stats">
+                <span className="player-score">{score}/{totalRounds}</span>
+                <span className="player-median">{medianDistance?.toLocaleString() ?? '—'} km</span>
+              </div>
+            </div>
+            <div className="comparison-vs">vs</div>
+            <div className={`comparison-player ${challengeResult === 'lose' ? 'winner' : ''}`}>
+              <span className="player-label">{t('challengeFriend.opponent')}</span>
+              <div className="player-stats">
+                <span className="player-score">{opponent.score ?? 0}/{totalRounds}</span>
+                <span className="player-median">{opponent.medianDistance?.toLocaleString() ?? '—'} km</span>
+              </div>
+            </div>
+          </div>
+          <div className={`challenge-verdict ${challengeResult}`}>
+            {challengeResult === 'win' && t('challengeFriend.youWin')}
+            {challengeResult === 'lose' && t('challengeFriend.youLose')}
+            {challengeResult === 'tie' && t('challengeFriend.tie')}
+          </div>
+        </div>
+      )}
+
+      <div className="game-over-actions">
+        <button className="restart-button" onClick={onRestart}>
+          {t('gameOver.playAgain')}
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+        </button>
+        {!isChallenge && (
+          <button
+            className="challenge-friend-button"
+            onClick={handleCopyChallenge}
+          >
+            {copied ? (
+              <>
+                <span className="btn-icon">✓</span>
+                {t('challengeFriend.copied')}
+              </>
+            ) : (
+              <>
+                <span className="btn-icon">🔗</span>
+                {t('challengeFriend.button')}
+              </>
+            )}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

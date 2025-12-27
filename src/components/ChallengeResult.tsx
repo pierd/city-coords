@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { City } from '../data/capitals';
-import type { AttemptResult } from '../hooks/useGame';
+import type { AttemptResult, OpponentData } from '../hooks/useGame';
 import type { GameMode } from '../types/gameMode';
 import { useTranslatedCity } from '../hooks/useTranslatedCity';
 import { getDailyStats } from '../utils/dailyStorage';
+import { generateChallengeUrl, copyToClipboard } from '../utils/challengeUrl';
 
 interface ChallengeResultProps {
   mode: GameMode;
@@ -14,6 +16,10 @@ interface ChallengeResultProps {
   bestDistance: number | null;
   onPlayAgain: () => void;
   onBackToMenu: () => void;
+  // Challenge mode props
+  seed: string;
+  isChallenge: boolean;
+  opponent: OpponentData | null;
 }
 
 function formatCoordinateDMS(value: number, type: 'lat' | 'lng'): string {
@@ -34,10 +40,55 @@ export function ChallengeResult({
   bestDistance,
   onPlayAgain,
   onBackToMenu,
+  seed,
+  isChallenge,
+  opponent,
 }: ChallengeResultProps) {
   const { t } = useTranslation();
   const { getDisplayName, getDisplayCountry } = useTranslatedCity();
   const dailyStats = mode === 'daily' ? getDailyStats() : null;
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyChallenge = async () => {
+    if (mode !== 'random') return;
+
+    const url = generateChallengeUrl(mode, seed, attempts, solved);
+    const success = await copyToClipboard(url);
+
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  // Determine winner when playing a challenge
+  const getChallengeResult = () => {
+    if (!isChallenge || !opponent) return null;
+
+    const youSolved = solved;
+    const opponentSolved = opponent.solved;
+    const yourAttempts = attempts.length;
+    const opponentAttempts = opponent.guesses.length;
+
+    if (youSolved && !opponentSolved) {
+      return 'win';
+    } else if (!youSolved && opponentSolved) {
+      return 'lose';
+    } else if (youSolved && opponentSolved) {
+      // Both solved - fewer attempts wins
+      if (yourAttempts < opponentAttempts) return 'win';
+      if (yourAttempts > opponentAttempts) return 'lose';
+      return 'tie';
+    } else {
+      // Neither solved - compare best distance
+      if (bestDistance === null) return 'lose';
+      // We don't store opponent's best distance for single-city modes,
+      // so ties are based on attempts alone
+      return 'tie';
+    }
+  };
+
+  const challengeResult = getChallengeResult();
 
   const getEmoji = () => {
     if (solved) {
@@ -118,6 +169,33 @@ export function ChallengeResult({
         ))}
       </div>
 
+      {/* Challenge comparison */}
+      {isChallenge && opponent && (
+        <div className="challenge-comparison">
+          <h3 className="comparison-title">{t('challengeFriend.comparison')}</h3>
+          <div className="comparison-grid">
+            <div className={`comparison-player ${challengeResult === 'win' ? 'winner' : ''}`}>
+              <span className="player-label">{t('challengeFriend.you')}</span>
+              <span className="player-result">
+                {solved ? `✓ ${attempts.length}/${maxAttempts}` : `✗ ${bestDistance?.toLocaleString() ?? '—'} km`}
+              </span>
+            </div>
+            <div className="comparison-vs">vs</div>
+            <div className={`comparison-player ${challengeResult === 'lose' ? 'winner' : ''}`}>
+              <span className="player-label">{t('challengeFriend.opponent')}</span>
+              <span className="player-result">
+                {opponent.solved ? `✓ ${opponent.guesses.length}/${maxAttempts}` : `✗`}
+              </span>
+            </div>
+          </div>
+          <div className={`challenge-verdict ${challengeResult}`}>
+            {challengeResult === 'win' && t('challengeFriend.youWin')}
+            {challengeResult === 'lose' && t('challengeFriend.youLose')}
+            {challengeResult === 'tie' && t('challengeFriend.tie')}
+          </div>
+        </div>
+      )}
+
       {/* Daily stats */}
       {mode === 'daily' && dailyStats && (
         <div className="daily-result-stats">
@@ -136,9 +214,29 @@ export function ChallengeResult({
 
       <div className="challenge-actions">
         {mode === 'random' && (
-          <button className="action-btn primary" onClick={onPlayAgain}>
-            {t('challengeResult.playAgain')}
-          </button>
+          <>
+            <button className="action-btn primary" onClick={onPlayAgain}>
+              {t('challengeResult.playAgain')}
+            </button>
+            {!isChallenge && (
+              <button
+                className="action-btn challenge-btn"
+                onClick={handleCopyChallenge}
+              >
+                {copied ? (
+                  <>
+                    <span className="btn-icon">✓</span>
+                    {t('challengeFriend.copied')}
+                  </>
+                ) : (
+                  <>
+                    <span className="btn-icon">🔗</span>
+                    {t('challengeFriend.button')}
+                  </>
+                )}
+              </button>
+            )}
+          </>
         )}
         <button
           className={`action-btn ${mode === 'daily' ? 'primary' : 'secondary'}`}

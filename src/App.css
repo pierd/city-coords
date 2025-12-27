@@ -1573,3 +1573,211 @@ body {
   }
 }
 
+/* Challenge Friend Feature */
+.challenge-comparison {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.comparison-title {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.comparison-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.comparison-player {
+  flex: 1;
+  max-width: 140px;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.comparison-player.winner {
+  border-color: var(--accent-primary);
+  background: var(--accent-glow);
+  box-shadow: var(--shadow-glow);
+}
+
+.player-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.player-result {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.player-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.player-score {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.player-median {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.comparison-vs {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.challenge-verdict {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.challenge-verdict.win {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.challenge-verdict.lose {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.challenge-verdict.tie {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+/* Challenge button in ChallengeResult */
+.action-btn.challenge-btn {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.action-btn.challenge-btn:hover {
+  background: var(--accent-glow);
+  border-color: var(--accent-secondary);
+}
+
+.action-btn .btn-icon {
+  font-size: 1.1rem;
+}
+
+/* Game Over actions wrapper */
+.game-over-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+
+/* Challenge friend button in GameOver */
+.challenge-friend-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 280px;
+  padding: 0.85rem 1.5rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.challenge-friend-button:hover {
+  background: var(--accent-glow);
+  border-color: var(--accent-secondary);
+  transform: translateY(-1px);
+}
+
+.challenge-friend-button .btn-icon {
+  font-size: 1.1rem;
+}
+
+/* Classic mode comparison adjustments */
+.classic-comparison .comparison-player {
+  max-width: 160px;
+}
+
+@media (max-width: 480px) {
+  .comparison-grid {
+    gap: 0.5rem;
+  }
+
+  .comparison-player {
+    padding: 0.75rem;
+  }
+
+  .player-result {
+    font-size: 0.95rem;
+  }
+
+  .player-score {
+    font-size: 1.1rem;
+  }
+
+  .challenge-verdict {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .game-over-actions {
+    gap: 0.5rem;
+  }
+
+  .challenge-friend-button {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
