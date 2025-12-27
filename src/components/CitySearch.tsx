@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { City } from '../data/capitals';
 import { useTranslatedCity } from '../hooks/useTranslatedCity';
@@ -25,8 +25,7 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
     }
   }, [disabled]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const updateSuggestions = useCallback((value: string) => {
     setQuery(value);
     setSelectedIndex(-1);
 
@@ -38,7 +37,28 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
       setSuggestions([]);
       setIsOpen(false);
     }
+  }, [onSearch]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateSuggestions(e.target.value);
   };
+
+  // Also listen to native input event for better automation tool compatibility
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const handleNativeInput = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      // Only update if the value differs from current query (avoids double-firing)
+      if (target.value !== query) {
+        updateSuggestions(target.value);
+      }
+    };
+
+    input.addEventListener('input', handleNativeInput);
+    return () => input.removeEventListener('input', handleNativeInput);
+  }, [query, updateSuggestions]);
 
   const handleSelect = (city: City) => {
     setQuery('');
