@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { AttemptResult } from '../hooks/useGame';
 import { useTranslatedCity } from '../hooks/useTranslatedCity';
-import { formatCoordinate } from './CoordinateDisplay';
+import { formatCoordinate } from '../utils/formatCoordinate';
 
 interface AttemptHistoryProps {
   attempts: AttemptResult[];

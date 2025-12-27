@@ -1,4 +1,3 @@
-import type { GameMode } from '../types/gameMode';
 import type { RoundResult, AttemptResult } from '../hooks/useGame';
 
 // Data structure for challenge URL (single city modes: random/daily)
