@@ -51,47 +51,39 @@ export function GameOver({ score, totalRounds, medianDistance, onRestart, histor
       </div>
       <p className="game-over-message">{getMessage()}</p>
 
-      <div className="stats-table-container">
-        <table className="stats-table">
-          <thead>
-            <tr>
-              <th>{t('gameOver.table.round')}</th>
-              <th>{t('gameOver.table.city')}</th>
-              <th>{t('gameOver.table.yourGuess')}</th>
-              <th>{t('gameOver.table.result')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map((round, index) => (
-              <tr key={index} className={round.isCorrect ? 'row-correct' : 'row-incorrect'}>
-                <td className="round-number">{index + 1}</td>
-                <td className="city-cell">
-                  <span className="city-name">{getDisplayName(round.city)}</span>
-                  <span className="country-name">{getDisplayCountry(round.city)}</span>
-                </td>
-                <td className="guess-cell">
-                  {round.guess ? (
-                    <>
-                      <span className="city-name">{getDisplayName(round.guess)}</span>
-                      <span className="country-name">{getDisplayCountry(round.guess)}</span>
-                    </>
-                  ) : (
-                    <span className="no-guess">—</span>
-                  )}
-                </td>
-                <td className="result-cell">
-                  {round.isCorrect ? (
-                    <span className="result-correct">✓</span>
-                  ) : (
-                    <span className="result-incorrect">
-                      {round.distance ? `${round.distance.toLocaleString()} km` : '✗'}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="stats-list-container">
+        <div className="stats-list">
+          {history.map((round, index) => (
+            <div key={index} className={`stats-row ${round.isCorrect ? 'row-correct' : 'row-incorrect'}`}>
+              <span className="round-badge">{index + 1}</span>
+              <div className="stats-row-content">
+                <div className="stats-city-line">
+                  <span className="target-city">{getDisplayName(round.city)}</span>
+                  <span className="target-country">{getDisplayCountry(round.city)}</span>
+                </div>
+                {!round.isCorrect && (
+                  <div className="stats-guess-line">
+                    <span className="guess-arrow">→</span>
+                    {round.guess ? (
+                      <span className="guess-city">{getDisplayName(round.guess)}</span>
+                    ) : (
+                      <span className="no-guess">—</span>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="stats-result">
+                {round.isCorrect ? (
+                  <span className="result-correct">✓</span>
+                ) : (
+                  <span className="result-distance">
+                    {round.distance ? `${round.distance.toLocaleString()} km` : '✗'}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <button className="restart-button" onClick={onRestart}>
