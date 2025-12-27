@@ -5,7 +5,7 @@ interface CoordinateDisplayProps {
   city: City;
 }
 
-function formatCoordinate(value: number, type: 'lat' | 'lng'): string {
+export function formatCoordinate(value: number, type: 'lat' | 'lng'): string {
   const absolute = Math.abs(value);
   const degrees = Math.floor(absolute);
   const minutes = Math.floor((absolute - degrees) * 60);

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { AttemptResult } from '../hooks/useGame';
 import { useTranslatedCity } from '../hooks/useTranslatedCity';
+import { formatCoordinate } from './CoordinateDisplay';
 
 interface AttemptHistoryProps {
   attempts: AttemptResult[];
@@ -29,8 +30,15 @@ export function AttemptHistory({ attempts, maxAttempts }: AttemptHistoryProps) {
           >
             <span className="attempt-number">{index + 1}</span>
             <div className="attempt-city">
-              <span className="attempt-city-name">{getDisplayName(attempt.guess)}</span>
-              <span className="attempt-country">{getDisplayCountry(attempt.guess)}</span>
+              <div className="attempt-city-info">
+                <span className="attempt-city-name">{getDisplayName(attempt.guess)}</span>
+                <span className="attempt-country">{getDisplayCountry(attempt.guess)}</span>
+              </div>
+              <div className="attempt-coords">
+                <span>{formatCoordinate(attempt.guess.lat, 'lat')}</span>
+                <span className="attempt-coords-divider">·</span>
+                <span>{formatCoordinate(attempt.guess.lng, 'lng')}</span>
+              </div>
             </div>
             {attempt.isCorrect ? (
               <span className="attempt-correct">✓</span>
