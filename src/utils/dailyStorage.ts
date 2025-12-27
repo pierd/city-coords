@@ -1,28 +1,37 @@
+import { z } from 'zod/v4';
 import { getTodaySeed } from './prng';
 
 const DAILY_STORAGE_KEY = 'city-coords-daily';
 
-export interface DailyProgress {
-  date: string;
-  solved: boolean;
-  attempts: number;
-  guesses: Array<{
-    cityName: string;
-  }>;
-}
+// Zod schemas for validation
+const DailyProgressSchema = z.object({
+  date: z.string(),
+  solved: z.boolean(),
+  attempts: z.number(),
+  guesses: z.array(
+    z.object({
+      cityName: z.string(),
+    })
+  ),
+});
 
-export interface DailyStats {
-  currentStreak: number;
-  maxStreak: number;
-  lastPlayedDate: string | null;
-  gamesPlayed: number;
-  gamesWon: number;
-}
+const DailyStatsSchema = z.object({
+  currentStreak: z.number(),
+  maxStreak: z.number(),
+  lastPlayedDate: z.string().nullable(),
+  gamesPlayed: z.number(),
+  gamesWon: z.number(),
+});
 
-interface DailyStorageData {
-  progress: DailyProgress | null;
-  stats: DailyStats;
-}
+const DailyStorageDataSchema = z.object({
+  progress: DailyProgressSchema.nullable(),
+  stats: DailyStatsSchema,
+});
+
+// Infer types from schemas
+export type DailyProgress = z.infer<typeof DailyProgressSchema>;
+export type DailyStats = z.infer<typeof DailyStatsSchema>;
+type DailyStorageData = z.infer<typeof DailyStorageDataSchema>;
 
 function getDefaultStats(): DailyStats {
   return {
@@ -40,7 +49,14 @@ function loadDailyData(): DailyStorageData {
     if (!data) {
       return { progress: null, stats: getDefaultStats() };
     }
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    const result = DailyStorageDataSchema.safeParse(parsed);
+    if (!result.success) {
+      // Schema mismatch - discard invalid data
+      console.warn('Invalid daily storage data, resetting:', result.error);
+      return { progress: null, stats: getDefaultStats() };
+    }
+    return result.data;
   } catch {
     return { progress: null, stats: getDefaultStats() };
   }
