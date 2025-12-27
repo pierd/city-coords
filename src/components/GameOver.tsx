@@ -50,6 +50,7 @@ export function GameOver({
     const opponentScore = opponent.score ?? 0;
     const yourMedian = medianDistance;
     const opponentMedian = opponent.medianDistance;
+    if (opponentMedian === undefined) return null;
 
     // Compare by perfect guesses first
     if (yourScore > opponentScore) return 'win';
