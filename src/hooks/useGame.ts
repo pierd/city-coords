@@ -8,7 +8,7 @@ import {
   countryNameTranslations,
   type SupportedLang,
 } from '../data/cityTranslations';
-import type { GameMode, GameModeConfig } from '../types/gameMode';
+import type { GameMode } from '../types/gameMode';
 import { GAME_MODE_CONFIGS } from '../types/gameMode';
 import {
   createPRNG,
@@ -22,7 +22,6 @@ import {
   getTodayProgress,
   saveDailyProgress,
   completeDailyChallenge,
-  type DailyProgress,
 } from '../utils/dailyStorage';
 
 export interface AttemptResult {
@@ -386,8 +385,9 @@ export function useGame() {
 
   // Calculate median distance from all guesses (for classic mode)
   const medianDistance = useMemo(() => {
-    if (!gameState || gameState.history.length === 0) return null;
-    const distances = gameState.history.map(r => r.distance ?? 0);
+    const gameStateHistory = gameState?.history ?? [];
+    if (gameStateHistory.length === 0) return null;
+    const distances = gameStateHistory.map(r => r.distance ?? 0);
     return calculateMedian(distances);
   }, [gameState?.history]);
 
