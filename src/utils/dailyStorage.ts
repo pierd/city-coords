@@ -6,13 +6,8 @@ export interface DailyProgress {
   date: string;
   solved: boolean;
   attempts: number;
-  bestDistance: number | null;
   guesses: Array<{
     cityName: string;
-    distance: number;
-    direction: string;
-    arrow: string;
-    bearing: number;
   }>;
 }
 
@@ -83,7 +78,7 @@ export function saveDailyProgress(progress: Omit<DailyProgress, 'date'>): void {
   saveDailyData(data);
 }
 
-export function completeDailyChallenge(solved: boolean, bestDistance: number | null): void {
+export function completeDailyChallenge(solved: boolean): void {
   const data = loadDailyData();
   const today = getTodaySeed();
   const yesterday = getYesterdaySeed();
@@ -115,7 +110,6 @@ export function completeDailyChallenge(solved: boolean, bestDistance: number | n
   // Update progress
   if (data.progress && data.progress.date === today) {
     data.progress.solved = solved;
-    data.progress.bestDistance = bestDistance;
   }
 
   saveDailyData(data);

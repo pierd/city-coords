@@ -149,6 +149,31 @@ function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
     const existingProgress = getTodayProgress();
     if (existingProgress) {
       const { city, index } = getCityForMode(mode, seed, 0, new Set());
+
+      // Recalculate attempt results from stored city names
+      const attempts: AttemptResult[] = existingProgress.guesses.map(g => {
+        const guessCity = capitals.find(c => c.name === g.cityName) || city;
+        const isCorrect = guessCity.name === city.name;
+        const distance = isCorrect ? 0 : calculateDistance(
+          city.lat, city.lng, guessCity.lat, guessCity.lng
+        );
+        const bearing = calculateBearing(
+          guessCity.lat, guessCity.lng, city.lat, city.lng
+        );
+        return {
+          guess: guessCity,
+          distance,
+          direction: bearingToDirection(bearing),
+          arrow: bearingToArrow(bearing),
+          bearing,
+          isCorrect,
+        };
+      });
+
+      const bestDistance = attempts.length > 0
+        ? Math.min(...attempts.map(a => a.distance))
+        : null;
+
       return {
         mode,
         currentCity: city,
@@ -162,15 +187,8 @@ function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
         usedCities: new Set([index]),
         guessedCity: null,
         history: [],
-        attempts: existingProgress.guesses.map(g => ({
-          guess: capitals.find(c => c.name === g.cityName) || city,
-          distance: g.distance,
-          direction: g.direction,
-          arrow: g.arrow,
-          bearing: g.bearing ?? 0,
-          isCorrect: g.distance === 0,
-        })),
-        bestDistance: existingProgress.bestDistance,
+        attempts,
+        bestDistance,
         seed,
       };
     }
@@ -290,18 +308,11 @@ export function useGame() {
             saveDailyProgress({
               solved: isCorrect,
               attempts: prev.attempt,
-              bestDistance: newBestDistance,
-              guesses: newAttempts.map(a => ({
-                cityName: a.guess.name,
-                distance: a.distance,
-                direction: a.direction,
-                arrow: a.arrow,
-                bearing: a.bearing,
-              })),
+              guesses: newAttempts.map(a => ({ cityName: a.guess.name })),
             });
 
             if (gameEnded) {
-              completeDailyChallenge(isCorrect, newBestDistance);
+              completeDailyChallenge(isCorrect);
             }
           }
 
