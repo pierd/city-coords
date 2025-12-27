@@ -51,6 +51,17 @@ export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2
   return Math.round(R * c);
 }
 
+// Calculate median from an array of numbers
+export function calculateMedian(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) {
+    return Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+  }
+  return sorted[mid];
+}
+
 const TOTAL_ROUNDS = 10;
 
 // Create searchable cities with all language variants
@@ -213,8 +224,16 @@ export function useGame() {
     });
   }, []);
 
+  // Calculate median distance from all guesses (including correct ones as 0)
+  const medianDistance = useMemo(() => {
+    if (gameState.history.length === 0) return null;
+    const distances = gameState.history.map(r => r.distance ?? 0);
+    return calculateMedian(distances);
+  }, [gameState.history]);
+
   return {
     gameState,
+    medianDistance,
     searchCities,
     checkAnswer,
     nextRound,

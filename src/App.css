@@ -214,24 +214,43 @@ body {
   align-items: center;
 }
 
-.score-value {
+.score-item-main .score-value {
   font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--accent-primary);
 }
 
+.score-value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.score-value-secondary {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.score-unit {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 0.15rem;
+}
+
 .score-total {
-  font-size: 1rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
   font-weight: 400;
 }
 
 .score-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   margin-top: 0.25rem;
 }
 
@@ -620,7 +639,11 @@ body {
 
 .final-score {
   font-family: var(--font-display);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
 }
 
 .final-score-value {
@@ -629,16 +652,39 @@ body {
   color: var(--accent-primary);
 }
 
-.final-score-total {
+.final-score-unit {
   font-size: 1.5rem;
   color: var(--text-muted);
+  font-weight: 400;
 }
 
-.final-percentage {
+.final-score-label {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.25rem;
+}
+
+.perfect-guesses {
+  font-family: var(--font-display);
   margin-bottom: 1rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.perfect-guesses-value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.perfect-guesses-label {
+  font-size: 1rem;
+  color: var(--text-muted);
 }
 
 .game-over-message {

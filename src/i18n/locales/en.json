@@ -13,7 +13,8 @@
     "longitude": "Longitude"
   },
   "scoreBoard": {
-    "score": "Score",
+    "typicalMiss": "Typical Miss",
+    "perfect": "Perfect",
     "round": "Round"
   },
   "result": {
@@ -27,6 +28,8 @@
   },
   "gameOver": {
     "title": "Game Over!",
+    "typicalMiss": "typical miss",
+    "perfectGuesses": "perfect guesses",
     "playAgain": "Play Again",
     "table": {
       "round": "#",

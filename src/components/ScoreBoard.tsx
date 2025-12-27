@@ -1,23 +1,38 @@
 import { useTranslation } from 'react-i18next';
 
 interface ScoreBoardProps {
-  score: number;
+  medianDistance: number | null;
+  perfectGuesses: number;
   round: number;
   totalRounds: number;
 }
 
-export function ScoreBoard({ score, round, totalRounds }: ScoreBoardProps) {
+export function ScoreBoard({ medianDistance, perfectGuesses, round, totalRounds }: ScoreBoardProps) {
   const { t } = useTranslation();
 
   return (
     <div className="score-board">
-      <div className="score-item">
-        <span className="score-value">{score}</span>
-        <span className="score-label">{t('scoreBoard.score')}</span>
+      <div className="score-item score-item-main">
+        <span className="score-value">
+          {medianDistance !== null ? (
+            <>
+              {medianDistance.toLocaleString()}
+              <span className="score-unit">km</span>
+            </>
+          ) : (
+            '—'
+          )}
+        </span>
+        <span className="score-label">{t('scoreBoard.typicalMiss')}</span>
       </div>
       <div className="score-divider" />
       <div className="score-item">
-        <span className="score-value">
+        <span className="score-value score-value-secondary">{perfectGuesses}</span>
+        <span className="score-label">{t('scoreBoard.perfect')}</span>
+      </div>
+      <div className="score-divider" />
+      <div className="score-item">
+        <span className="score-value score-value-secondary">
           {round}<span className="score-total">/{totalRounds}</span>
         </span>
         <span className="score-label">{t('scoreBoard.round')}</span>

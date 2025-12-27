@@ -10,7 +10,7 @@ import './App.css';
 
 function App() {
   const { t } = useTranslation();
-  const { gameState, searchCities, checkAnswer, nextRound, resetGame } = useGame();
+  const { gameState, medianDistance, searchCities, checkAnswer, nextRound, resetGame } = useGame();
   const { currentCity, score, round, totalRounds, isCorrect, gameOver, guessedCity, history } = gameState;
 
   const handleNextRound = () => {
@@ -39,10 +39,10 @@ function App() {
 
       <main className="main">
         {gameOver ? (
-          <GameOver score={score} totalRounds={totalRounds} onRestart={resetGame} history={history} />
+          <GameOver score={score} totalRounds={totalRounds} medianDistance={medianDistance} onRestart={resetGame} history={history} />
         ) : (
           <div className="game-container">
-            <ScoreBoard score={score} round={round} totalRounds={totalRounds} />
+            <ScoreBoard medianDistance={medianDistance} perfectGuesses={score} round={round} totalRounds={totalRounds} />
 
             <CoordinateDisplay
               city={currentCity}

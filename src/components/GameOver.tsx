@@ -5,28 +5,32 @@ import { useTranslatedCity } from '../hooks/useTranslatedCity';
 interface GameOverProps {
   score: number;
   totalRounds: number;
+  medianDistance: number | null;
   onRestart: () => void;
   history: RoundResult[];
 }
 
-export function GameOver({ score, totalRounds, onRestart, history }: GameOverProps) {
+export function GameOver({ score, totalRounds, medianDistance, onRestart, history }: GameOverProps) {
   const { t } = useTranslation();
   const { getDisplayName, getDisplayCountry } = useTranslatedCity();
-  const percentage = Math.round((score / totalRounds) * 100);
 
+  // Get message based on median distance (lower is better)
   const getMessage = () => {
-    if (percentage === 100) return t('gameOver.messages.perfect');
-    if (percentage >= 80) return t('gameOver.messages.excellent');
-    if (percentage >= 60) return t('gameOver.messages.good');
-    if (percentage >= 40) return t('gameOver.messages.notBad');
+    if (medianDistance === null) return t('gameOver.messages.needsPractice');
+    if (medianDistance === 0) return t('gameOver.messages.perfect');
+    if (medianDistance <= 500) return t('gameOver.messages.excellent');
+    if (medianDistance <= 1500) return t('gameOver.messages.good');
+    if (medianDistance <= 3000) return t('gameOver.messages.notBad');
     return t('gameOver.messages.needsPractice');
   };
 
+  // Get emoji based on median distance
   const getEmoji = () => {
-    if (percentage === 100) return '🏆';
-    if (percentage >= 80) return '🌟';
-    if (percentage >= 60) return '🎯';
-    if (percentage >= 40) return '📍';
+    if (medianDistance === null) return '🗺️';
+    if (medianDistance === 0) return '🏆';
+    if (medianDistance <= 500) return '🌟';
+    if (medianDistance <= 1500) return '🎯';
+    if (medianDistance <= 3000) return '📍';
     return '🗺️';
   };
 
@@ -35,10 +39,16 @@ export function GameOver({ score, totalRounds, onRestart, history }: GameOverPro
       <div className="game-over-emoji">{getEmoji()}</div>
       <h2 className="game-over-title">{t('gameOver.title')}</h2>
       <div className="final-score">
-        <span className="final-score-value">{score}</span>
-        <span className="final-score-total">/ {totalRounds}</span>
+        <span className="final-score-value">
+          {medianDistance !== null ? medianDistance.toLocaleString() : '—'}
+        </span>
+        <span className="final-score-unit">km</span>
       </div>
-      <div className="final-percentage">{percentage}%</div>
+      <div className="final-score-label">{t('gameOver.typicalMiss')}</div>
+      <div className="perfect-guesses">
+        <span className="perfect-guesses-value">{score}</span>
+        <span className="perfect-guesses-label">/ {totalRounds} {t('gameOver.perfectGuesses')}</span>
+      </div>
       <p className="game-over-message">{getMessage()}</p>
 
       <div className="stats-table-container">
