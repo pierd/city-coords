@@ -1173,6 +1173,8 @@ body {
   font-size: 1.25rem;
   color: var(--accent-primary);
   font-weight: 600;
+  display: inline-block;
+  line-height: 1;
 }
 
 .attempt-distance {
@@ -1360,6 +1362,8 @@ body {
 .challenge-attempt .attempt-dir {
   color: var(--accent-primary);
   font-size: 1rem;
+  display: inline-block;
+  line-height: 1;
 }
 
 .challenge-attempt .attempt-dist {

@@ -12,6 +12,7 @@ export interface DailyProgress {
     distance: number;
     direction: string;
     arrow: string;
+    bearing: number;
   }>;
 }
 

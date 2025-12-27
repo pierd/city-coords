@@ -105,7 +105,12 @@ export function ChallengeResult({
               <span className="attempt-check">✓</span>
             ) : (
               <>
-                <span className="attempt-dir">{attempt.arrow}</span>
+                <span
+                  className="attempt-dir"
+                  style={{ transform: `rotate(${attempt.bearing}deg)`, display: 'inline-block' }}
+                >
+                  ↑
+                </span>
                 <span className="attempt-dist">{attempt.distance.toLocaleString()} km</span>
               </>
             )}

@@ -36,7 +36,12 @@ export function AttemptHistory({ attempts, maxAttempts }: AttemptHistoryProps) {
               <span className="attempt-correct">✓</span>
             ) : (
               <div className="attempt-hint">
-                <span className="attempt-arrow">{attempt.arrow}</span>
+                <span
+                  className="attempt-arrow"
+                  style={{ transform: `rotate(${attempt.bearing}deg)` }}
+                >
+                  ↑
+                </span>
                 <span className="attempt-distance">{attempt.distance.toLocaleString()} km</span>
               </div>
             )}

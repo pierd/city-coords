@@ -29,6 +29,7 @@ export interface AttemptResult {
   distance: number;
   direction: string;
   arrow: string;
+  bearing: number;
   isCorrect: boolean;
 }
 
@@ -166,6 +167,7 @@ function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
           distance: g.distance,
           direction: g.direction,
           arrow: g.arrow,
+          bearing: g.bearing ?? 0,
           isCorrect: g.distance === 0,
         })),
         bestDistance: existingProgress.bestDistance,
@@ -269,6 +271,7 @@ export function useGame() {
           distance,
           direction,
           arrow,
+          bearing,
           isCorrect,
         };
 
@@ -293,6 +296,7 @@ export function useGame() {
                 distance: a.distance,
                 direction: a.direction,
                 arrow: a.arrow,
+                bearing: a.bearing,
               })),
             });
 
