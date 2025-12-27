@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { City } from '../data/capitals';
 import { useTranslatedCity } from '../hooks/useTranslatedCity';
+import { formatCoordinate } from '../utils/formatCoordinate';
 
 interface ResultFeedbackProps {
   isCorrect: boolean;
@@ -9,15 +10,6 @@ interface ResultFeedbackProps {
   distance: number | null;
   onNext: () => void;
   isLastRound: boolean;
-}
-
-function formatCoordinateDMS(value: number, type: 'lat' | 'lng'): string {
-  const absolute = Math.abs(value);
-  const degrees = Math.floor(absolute);
-  const minutes = Math.floor((absolute - degrees) * 60);
-  const seconds = Math.round(((absolute - degrees) * 60 - minutes) * 60);
-  const direction = type === 'lat' ? (value >= 0 ? 'N' : 'S') : value >= 0 ? 'E' : 'W';
-  return `${degrees}°${minutes}'${seconds}"${direction}`;
 }
 
 export function ResultFeedback({
@@ -36,9 +28,9 @@ export function ResultFeedback({
       {/* Header with coordinates and result indicator */}
       <div className="result-header">
         <div className="result-coords">
-          <span className="result-coord">{formatCoordinateDMS(correctCity.lat, 'lat')}</span>
+          <span className="result-coord">{formatCoordinate(correctCity.lat, 'lat')}</span>
           <span className="result-coord-sep">×</span>
-          <span className="result-coord">{formatCoordinateDMS(correctCity.lng, 'lng')}</span>
+          <span className="result-coord">{formatCoordinate(correctCity.lng, 'lng')}</span>
         </div>
         <div className={`result-badge ${isCorrect ? 'correct' : 'incorrect'}`}>
           {isCorrect ? (
@@ -70,7 +62,7 @@ export function ResultFeedback({
           <div className="comparison-row coords">
             <span className="comparison-label">{t('coordinates.coordinates')}</span>
             <span className="comparison-coords">
-              {formatCoordinateDMS(guessedCity.lat, 'lat')} × {formatCoordinateDMS(guessedCity.lng, 'lng')}
+              {formatCoordinate(guessedCity.lat, 'lat')} × {formatCoordinate(guessedCity.lng, 'lng')}
             </span>
           </div>
           {distance !== null && (
