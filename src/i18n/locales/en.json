@@ -50,5 +50,56 @@
     "en": "English",
     "pl": "Polski",
     "es": "Español"
+  },
+  "modeSelector": {
+    "title": "Choose Your Challenge",
+    "daily": {
+      "name": "Daily",
+      "description": "Same city for everyone today. 6 attempts to guess."
+    },
+    "random": {
+      "name": "Random",
+      "description": "Random city with 6 attempts to guess."
+    },
+    "classic": {
+      "name": "10×",
+      "description": "10 cities, one attempt each. Test your knowledge!"
+    },
+    "stats": {
+      "played": "Played",
+      "won": "Won",
+      "streak": "Streak",
+      "maxStreak": "Best"
+    }
+  },
+  "modes": {
+    "daily": "Daily",
+    "random": "Random"
+  },
+  "challenge": {
+    "attempts": "Attempts",
+    "closest": "Closest"
+  },
+  "attempts": {
+    "title": "Your guesses"
+  },
+  "challengeResult": {
+    "solved": "You got it!",
+    "notSolved": "Not this time",
+    "attempts": "attempts",
+    "closestGuess": "closest guess",
+    "streak": "Streak",
+    "maxStreak": "Best",
+    "playAgain": "Play Again",
+    "backToMenu": "Back to Menu",
+    "messages": {
+      "firstTry": "Incredible! First try!",
+      "great": "Great job!",
+      "gotIt": "You figured it out!",
+      "notThisTime": "Better luck next time!"
+    }
+  },
+  "game": {
+    "backToMenu": "Back to Menu"
   }
 }

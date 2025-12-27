@@ -50,5 +50,56 @@
     "en": "English",
     "pl": "Polski",
     "es": "Español"
+  },
+  "modeSelector": {
+    "title": "Wybierz tryb gry",
+    "daily": {
+      "name": "Codzienne",
+      "description": "To samo miasto dla wszystkich. 6 prób na zgadnięcie."
+    },
+    "random": {
+      "name": "Losowe",
+      "description": "Losowe miasto z 6 próbami na zgadnięcie."
+    },
+    "classic": {
+      "name": "10×",
+      "description": "10 miast, jedna próba na każde. Sprawdź się!"
+    },
+    "stats": {
+      "played": "Rozegrane",
+      "won": "Wygrane",
+      "streak": "Seria",
+      "maxStreak": "Rekord"
+    }
+  },
+  "modes": {
+    "daily": "Dzienne",
+    "random": "Losowe"
+  },
+  "challenge": {
+    "attempts": "Próby",
+    "closest": "Najblizej"
+  },
+  "attempts": {
+    "title": "Twoje odpowiedzi"
+  },
+  "challengeResult": {
+    "solved": "Udało się!",
+    "notSolved": "Nie tym razem",
+    "attempts": "prób",
+    "closestGuess": "najblizej",
+    "streak": "Seria",
+    "maxStreak": "Rekord",
+    "playAgain": "Zagraj ponownie",
+    "backToMenu": "Powrót do menu",
+    "messages": {
+      "firstTry": "Niesamowite! Za pierwszym razem!",
+      "great": "Świetna robota!",
+      "gotIt": "Udało ci się!",
+      "notThisTime": "Powodzenia następnym razem!"
+    }
+  },
+  "game": {
+    "backToMenu": "Powrót do menu"
   }
 }

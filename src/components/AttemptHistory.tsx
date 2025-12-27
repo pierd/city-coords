@@ -1,0 +1,48 @@
+import { useTranslation } from 'react-i18next';
+import type { AttemptResult } from '../hooks/useGame';
+import { useTranslatedCity } from '../hooks/useTranslatedCity';
+
+interface AttemptHistoryProps {
+  attempts: AttemptResult[];
+  maxAttempts: number;
+}
+
+export function AttemptHistory({ attempts, maxAttempts }: AttemptHistoryProps) {
+  const { t } = useTranslation();
+  const { getDisplayName, getDisplayCountry } = useTranslatedCity();
+
+  if (attempts.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="attempt-history">
+      <div className="attempt-header">
+        <span className="attempt-title">{t('attempts.title')}</span>
+        <span className="attempt-count">{attempts.length}/{maxAttempts}</span>
+      </div>
+      <div className="attempt-list">
+        {attempts.map((attempt, index) => (
+          <div
+            key={index}
+            className={`attempt-row ${attempt.isCorrect ? 'correct' : ''}`}
+          >
+            <span className="attempt-number">{index + 1}</span>
+            <div className="attempt-city">
+              <span className="attempt-city-name">{getDisplayName(attempt.guess)}</span>
+              <span className="attempt-country">{getDisplayCountry(attempt.guess)}</span>
+            </div>
+            {attempt.isCorrect ? (
+              <span className="attempt-correct">✓</span>
+            ) : (
+              <div className="attempt-hint">
+                <span className="attempt-arrow">{attempt.arrow}</span>
+                <span className="attempt-distance">{attempt.distance.toLocaleString()} km</span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

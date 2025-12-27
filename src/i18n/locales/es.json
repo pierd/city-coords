@@ -50,5 +50,56 @@
     "en": "English",
     "pl": "Polski",
     "es": "Español"
+  },
+  "modeSelector": {
+    "title": "Elige tu desafío",
+    "daily": {
+      "name": "Diario",
+      "description": "La misma ciudad para todos hoy. 6 intentos para adivinar."
+    },
+    "random": {
+      "name": "Aleatorio",
+      "description": "Ciudad aleatoria con 6 intentos para adivinar."
+    },
+    "classic": {
+      "name": "10×",
+      "description": "10 ciudades, un intento cada una. ¡Pon a prueba tu conocimiento!"
+    },
+    "stats": {
+      "played": "Jugados",
+      "won": "Ganados",
+      "streak": "Racha",
+      "maxStreak": "Mejor"
+    }
+  },
+  "modes": {
+    "daily": "Diario",
+    "random": "Aleatorio"
+  },
+  "challenge": {
+    "attempts": "Intentos",
+    "closest": "Más cerca"
+  },
+  "attempts": {
+    "title": "Tus respuestas"
+  },
+  "challengeResult": {
+    "solved": "¡Lo conseguiste!",
+    "notSolved": "Esta vez no",
+    "attempts": "intentos",
+    "closestGuess": "más cerca",
+    "streak": "Racha",
+    "maxStreak": "Mejor",
+    "playAgain": "Jugar de nuevo",
+    "backToMenu": "Volver al menú",
+    "messages": {
+      "firstTry": "¡Increíble! ¡Al primer intento!",
+      "great": "¡Buen trabajo!",
+      "gotIt": "¡Lo descubriste!",
+      "notThisTime": "¡Mejor suerte la próxima vez!"
+    }
+  },
+  "game": {
+    "backToMenu": "Volver al menú"
   }
 }

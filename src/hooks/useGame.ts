@@ -8,6 +8,30 @@ import {
   countryNameTranslations,
   type SupportedLang,
 } from '../data/cityTranslations';
+import type { GameMode, GameModeConfig } from '../types/gameMode';
+import { GAME_MODE_CONFIGS } from '../types/gameMode';
+import {
+  createPRNG,
+  stringToSeed,
+  getTodaySeed,
+  generateRandomSeed,
+  shuffleArray,
+} from '../utils/prng';
+import { calculateBearing, bearingToArrow, bearingToDirection } from '../utils/direction';
+import {
+  getTodayProgress,
+  saveDailyProgress,
+  completeDailyChallenge,
+  type DailyProgress,
+} from '../utils/dailyStorage';
+
+export interface AttemptResult {
+  guess: City;
+  distance: number;
+  direction: string;
+  arrow: string;
+  isCorrect: boolean;
+}
 
 export interface RoundResult {
   city: City;
@@ -17,15 +41,21 @@ export interface RoundResult {
 }
 
 export interface GameState {
+  mode: GameMode;
   currentCity: City;
   score: number;
   round: number;
   totalRounds: number;
+  attempt: number;
+  maxAttempts: number;
   isCorrect: boolean | null;
   gameOver: boolean;
   usedCities: Set<number>;
   guessedCity: City | null;
   history: RoundResult[];
+  attempts: AttemptResult[];
+  bestDistance: number | null;
+  seed: string;
 }
 
 // City with all language variants for search
@@ -62,8 +92,6 @@ export function calculateMedian(values: number[]): number | null {
   return sorted[mid];
 }
 
-const TOTAL_ROUNDS = 10;
-
 // Create searchable cities with all language variants
 function createSearchableCities(): SearchableCity[] {
   return capitals.map((city) => ({
@@ -77,48 +105,109 @@ function createSearchableCities(): SearchableCity[] {
   }));
 }
 
-function getRandomCity(usedCities: Set<number>): { city: City; index: number } {
-  const availableIndices = capitals
-    .map((_, i) => i)
-    .filter((i) => !usedCities.has(i));
+function getCityForMode(
+  mode: GameMode,
+  seed: string,
+  roundIndex: number,
+  usedCities: Set<number>
+): { city: City; index: number } {
+  const random = createPRNG(stringToSeed(seed));
 
-  if (availableIndices.length === 0) {
-    // Reset if we've used all cities
-    const randomIndex = Math.floor(Math.random() * capitals.length);
-    return { city: capitals[randomIndex], index: randomIndex };
+  // For daily/random mode with single city, just get the first shuffled city
+  if (mode === 'daily' || mode === 'random') {
+    const shuffled = shuffleArray([...capitals.keys()], random);
+    return { city: capitals[shuffled[0]], index: shuffled[0] };
   }
 
-  const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-  return { city: capitals[randomIndex], index: randomIndex };
+  // For classic mode, advance the PRNG to the correct position
+  const shuffled = shuffleArray([...capitals.keys()], random);
+  const availableIndices = shuffled.filter(i => !usedCities.has(i));
+
+  if (availableIndices.length === 0) {
+    return { city: capitals[shuffled[roundIndex % shuffled.length]], index: shuffled[roundIndex % shuffled.length] };
+  }
+
+  const cityIndex = availableIndices[roundIndex % availableIndices.length];
+  return { city: capitals[cityIndex], index: cityIndex };
+}
+
+function initializeGameState(mode: GameMode, existingSeed?: string): GameState {
+  const config = GAME_MODE_CONFIGS[mode];
+
+  // Determine seed based on mode
+  let seed: string;
+  if (mode === 'daily') {
+    seed = getTodaySeed();
+  } else if (existingSeed) {
+    seed = existingSeed;
+  } else {
+    seed = generateRandomSeed();
+  }
+
+  // Check for existing daily progress
+  if (mode === 'daily') {
+    const existingProgress = getTodayProgress();
+    if (existingProgress) {
+      const { city, index } = getCityForMode(mode, seed, 0, new Set());
+      return {
+        mode,
+        currentCity: city,
+        score: existingProgress.solved ? 1 : 0,
+        round: 1,
+        totalRounds: config.totalRounds,
+        attempt: existingProgress.attempts + 1,
+        maxAttempts: config.maxAttempts,
+        isCorrect: existingProgress.solved ? true : null,
+        gameOver: existingProgress.solved || existingProgress.attempts >= config.maxAttempts,
+        usedCities: new Set([index]),
+        guessedCity: null,
+        history: [],
+        attempts: existingProgress.guesses.map(g => ({
+          guess: capitals.find(c => c.name === g.cityName) || city,
+          distance: g.distance,
+          direction: g.direction,
+          arrow: g.arrow,
+          isCorrect: g.distance === 0,
+        })),
+        bestDistance: existingProgress.bestDistance,
+        seed,
+      };
+    }
+  }
+
+  const { city, index } = getCityForMode(mode, seed, 0, new Set());
+
+  return {
+    mode,
+    currentCity: city,
+    score: 0,
+    round: 1,
+    totalRounds: config.totalRounds,
+    attempt: 1,
+    maxAttempts: config.maxAttempts,
+    isCorrect: null,
+    gameOver: false,
+    usedCities: new Set([index]),
+    guessedCity: null,
+    history: [],
+    attempts: [],
+    bestDistance: null,
+    seed,
+  };
 }
 
 export function useGame() {
   const { i18n } = useTranslation();
   const currentLang = (i18n.language?.substring(0, 2) || 'en') as SupportedLang;
 
-  const [gameState, setGameState] = useState<GameState>(() => {
-    const { city, index } = getRandomCity(new Set());
-    return {
-      currentCity: city,
-      score: 0,
-      round: 1,
-      totalRounds: TOTAL_ROUNDS,
-      isCorrect: null,
-      gameOver: false,
-      usedCities: new Set([index]),
-      guessedCity: null,
-      history: [],
-    };
-  });
+  const [gameState, setGameState] = useState<GameState | null>(null);
 
   // Create searchable cities with all translations
   const searchableCities = useMemo(() => createSearchableCities(), []);
 
   // Create Fuse instance that searches across all language variants
-  // Priority: current language fields first, then other languages
   const fuse = useMemo(() => {
     const getSearchKeys = (lang: SupportedLang) => {
-      // Prioritize current language, then add others
       const langOrder = [lang, 'en', 'pl', 'es'].filter((l, i, arr) => arr.indexOf(l) === i);
 
       return langOrder.flatMap((l) => [
@@ -134,11 +223,14 @@ export function useGame() {
     });
   }, [searchableCities, currentLang]);
 
+  const startGame = useCallback((mode: GameMode) => {
+    setGameState(initializeGameState(mode));
+  }, []);
+
   const searchCities = useCallback(
     (query: string): City[] => {
       if (!query.trim()) return [];
       const results = fuse.search(query, { limit: 5 });
-      // Return the original City objects (without the extra search fields)
       return results.map((r) => ({
         name: r.item.name,
         country: r.item.country,
@@ -151,6 +243,8 @@ export function useGame() {
 
   const checkAnswer = useCallback(
     (selectedCity: City) => {
+      if (!gameState) return false;
+
       const isCorrect = selectedCity.name === gameState.currentCity.name;
       const distance = isCorrect ? 0 : calculateDistance(
         gameState.currentCity.lat,
@@ -159,7 +253,68 @@ export function useGame() {
         selectedCity.lng
       );
 
+      const bearing = calculateBearing(
+        selectedCity.lat,
+        selectedCity.lng,
+        gameState.currentCity.lat,
+        gameState.currentCity.lng
+      );
+      const direction = bearingToDirection(bearing);
+      const arrow = bearingToArrow(bearing);
+
       setGameState((prev) => {
+        if (!prev) return prev;
+
+        const attemptResult: AttemptResult = {
+          guess: selectedCity,
+          distance,
+          direction,
+          arrow,
+          isCorrect,
+        };
+
+        const newAttempts = [...prev.attempts, attemptResult];
+        const newBestDistance = prev.bestDistance === null
+          ? distance
+          : Math.min(prev.bestDistance, distance);
+
+        // For multi-attempt modes (daily/random)
+        if (prev.mode === 'daily' || prev.mode === 'random') {
+          const isLastAttempt = prev.attempt >= prev.maxAttempts;
+          const gameEnded = isCorrect || isLastAttempt;
+
+          // Save daily progress
+          if (prev.mode === 'daily') {
+            saveDailyProgress({
+              solved: isCorrect,
+              attempts: prev.attempt,
+              bestDistance: newBestDistance,
+              guesses: newAttempts.map(a => ({
+                cityName: a.guess.name,
+                distance: a.distance,
+                direction: a.direction,
+                arrow: a.arrow,
+              })),
+            });
+
+            if (gameEnded) {
+              completeDailyChallenge(isCorrect, newBestDistance);
+            }
+          }
+
+          return {
+            ...prev,
+            attempt: prev.attempt + 1,
+            isCorrect: isCorrect ? true : (isLastAttempt ? false : null),
+            gameOver: gameEnded,
+            guessedCity: selectedCity,
+            attempts: newAttempts,
+            bestDistance: newBestDistance,
+            score: isCorrect ? 1 : 0,
+          };
+        }
+
+        // For classic mode (single attempt per round)
         const newScore = isCorrect ? prev.score + 1 : prev.score;
         const roundResult: RoundResult = {
           city: prev.currentCity,
@@ -174,70 +329,77 @@ export function useGame() {
           isCorrect,
           guessedCity: selectedCity,
           history: [...prev.history, roundResult],
+          attempts: newAttempts,
+          bestDistance: newBestDistance,
         };
       });
 
       return isCorrect;
     },
-    [gameState.currentCity]
+    [gameState]
   );
 
   const nextRound = useCallback(() => {
     setGameState((prev) => {
-      if (prev.gameOver) return prev;
+      if (!prev || prev.gameOver) return prev;
 
-      // If this was the last round, trigger game over
-      if (prev.round >= TOTAL_ROUNDS) {
+      // For classic mode - move to next round
+      if (prev.mode === 'classic') {
+        if (prev.round >= prev.totalRounds) {
+          return {
+            ...prev,
+            gameOver: true,
+          };
+        }
+
+        const { city, index } = getCityForMode(
+          prev.mode,
+          prev.seed,
+          prev.round,
+          prev.usedCities
+        );
+        const newUsedCities = new Set(prev.usedCities);
+        newUsedCities.add(index);
+
         return {
           ...prev,
-          gameOver: true,
+          currentCity: city,
+          round: prev.round + 1,
+          isCorrect: null,
+          guessedCity: null,
+          usedCities: newUsedCities,
+          attempts: [],
         };
       }
 
-      const { city, index } = getRandomCity(prev.usedCities);
-      const newUsedCities = new Set(prev.usedCities);
-      newUsedCities.add(index);
-
-      return {
-        ...prev,
-        currentCity: city,
-        round: prev.round + 1,
-        isCorrect: null,
-        guessedCity: null,
-        usedCities: newUsedCities,
-      };
+      return prev;
     });
   }, []);
 
   const resetGame = useCallback(() => {
-    const { city, index } = getRandomCity(new Set());
-    setGameState({
-      currentCity: city,
-      score: 0,
-      round: 1,
-      totalRounds: TOTAL_ROUNDS,
-      isCorrect: null,
-      gameOver: false,
-      usedCities: new Set([index]),
-      guessedCity: null,
-      history: [],
-    });
+    setGameState(null);
   }, []);
 
-  // Calculate median distance from all guesses (including correct ones as 0)
+  const goToMenu = useCallback(() => {
+    setGameState(null);
+  }, []);
+
+  // Calculate median distance from all guesses (for classic mode)
   const medianDistance = useMemo(() => {
-    if (gameState.history.length === 0) return null;
+    if (!gameState || gameState.history.length === 0) return null;
     const distances = gameState.history.map(r => r.distance ?? 0);
     return calculateMedian(distances);
-  }, [gameState.history]);
+  }, [gameState?.history]);
 
   return {
     gameState,
     medianDistance,
+    startGame,
     searchCities,
     checkAnswer,
     nextRound,
     resetGame,
+    goToMenu,
     allCities: capitals,
   };
 }
