@@ -10,7 +10,8 @@
   "coordinates": {
     "findCity": "Znajdź to miasto",
     "latitude": "Szerokość",
-    "longitude": "Długość"
+    "longitude": "Długość",
+    "coordinates": "Współrzędne"
   },
   "scoreBoard": {
     "typicalMiss": "Typowy błąd",

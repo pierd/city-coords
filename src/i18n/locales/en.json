@@ -10,7 +10,8 @@
   "coordinates": {
     "findCity": "Find this city",
     "latitude": "Latitude",
-    "longitude": "Longitude"
+    "longitude": "Longitude",
+    "coordinates": "Coordinates"
   },
   "scoreBoard": {
     "typicalMiss": "Typical Miss",

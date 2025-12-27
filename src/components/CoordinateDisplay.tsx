@@ -1,10 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import type { City } from '../data/capitals';
-import { useTranslatedCity } from '../hooks/useTranslatedCity';
 
 interface CoordinateDisplayProps {
   city: City;
-  revealed?: boolean;
 }
 
 function formatCoordinate(value: number, type: 'lat' | 'lng'): string {
@@ -19,9 +17,8 @@ function formatCoordinate(value: number, type: 'lat' | 'lng'): string {
   return `${degrees}°${minutes}'${seconds}"${direction}`;
 }
 
-export function CoordinateDisplay({ city, revealed }: CoordinateDisplayProps) {
+export function CoordinateDisplay({ city }: CoordinateDisplayProps) {
   const { t } = useTranslation();
-  const { getDisplayName, getDisplayCountry } = useTranslatedCity();
 
   return (
     <div className="coordinate-display">
@@ -37,12 +34,6 @@ export function CoordinateDisplay({ city, revealed }: CoordinateDisplayProps) {
           <span className="coord-label">{t('coordinates.longitude')}</span>
         </div>
       </div>
-      {revealed && (
-        <div className="revealed-city">
-          <span className="city-name">{getDisplayName(city)}</span>
-          <span className="country-name">{getDisplayCountry(city)}</span>
-        </div>
-      )}
     </div>
   );
 }

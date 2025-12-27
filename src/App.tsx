@@ -44,17 +44,15 @@ function App() {
           <div className="game-container">
             <ScoreBoard medianDistance={medianDistance} perfectGuesses={score} round={round} totalRounds={totalRounds} />
 
-            <CoordinateDisplay
-              city={currentCity}
-              revealed={isCorrect !== null}
-            />
-
             {isCorrect === null ? (
-              <CitySearch
-                onSearch={searchCities}
-                onSelect={checkAnswer}
-                disabled={isCorrect !== null}
-              />
+              <>
+                <CoordinateDisplay city={currentCity} />
+                <CitySearch
+                  onSearch={searchCities}
+                  onSelect={checkAnswer}
+                  disabled={false}
+                />
+              </>
             ) : (
               <ResultFeedback
                 isCorrect={isCorrect}
