@@ -20,14 +20,6 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (disabled) {
-      setQuery('');
-      setSuggestions([]);
-      setIsOpen(false);
-    }
-  }, [disabled]);
-
-  useEffect(() => {
     if (!disabled && inputRef.current) {
       inputRef.current.focus();
     }
@@ -57,7 +49,7 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) return;
+    if (disabled || !isOpen) return;
 
     switch (e.key) {
       case 'ArrowDown':
@@ -105,10 +97,10 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
         <input
           ref={inputRef}
           type="text"
-          value={query}
+          value={disabled ? '' : query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => suggestions.length > 0 && setIsOpen(true)}
+          onFocus={() => !disabled && suggestions.length > 0 && setIsOpen(true)}
           placeholder={t('search.placeholder')}
           disabled={disabled}
           className="search-input"
@@ -132,7 +124,7 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
         </div>
       </div>
 
-      {isOpen && suggestions.length > 0 && (
+      {!disabled && isOpen && suggestions.length > 0 && (
         <ul className="suggestions-list">
           {suggestions.map((city, index) => (
             <li
