@@ -1,12 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { useGame } from './hooks/useGame';
 import { CoordinateDisplay } from './components/CoordinateDisplay';
 import { CitySearch } from './components/CitySearch';
 import { ScoreBoard } from './components/ScoreBoard';
 import { ResultFeedback } from './components/ResultFeedback';
 import { GameOver } from './components/GameOver';
+import { LanguageSelector } from './components/LanguageSelector';
 import './App.css';
 
 function App() {
+  const { t } = useTranslation();
   const { gameState, searchCities, checkAnswer, nextRound, resetGame } = useGame();
   const { currentCity, score, round, totalRounds, isCorrect, gameOver, guessedCity, history } = gameState;
 
@@ -24,12 +27,14 @@ function App() {
       <div className="background-grid" />
       <div className="background-glow" />
 
+      <LanguageSelector />
+
       <header className="header">
         <h1 className="title">
           <span className="title-icon">◎</span>
-          City Coords
+          {t('app.title')}
         </h1>
-        <p className="subtitle">Guess the capital city from its coordinates</p>
+        <p className="subtitle">{t('app.subtitle')}</p>
       </header>
 
       <main className="main">
@@ -65,7 +70,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <span>{gameState.usedCities.size > 0 ? `${150}+ capital cities` : ''}</span>
+        <span>{gameState.usedCities.size > 0 ? t('app.footer', { count: 150 }) : ''}</span>
       </footer>
     </div>
   );

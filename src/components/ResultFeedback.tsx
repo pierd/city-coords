@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import type { City } from '../data/capitals';
+import { useTranslatedCity } from '../hooks/useTranslatedCity';
 
 interface ResultFeedbackProps {
   isCorrect: boolean;
@@ -24,6 +26,9 @@ export function ResultFeedback({
   onNext,
   isLastRound,
 }: ResultFeedbackProps) {
+  const { t } = useTranslation();
+  const { getDisplayName, getDisplayCountry } = useTranslatedCity();
+
   return (
     <div className={`result-feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
       <div className="result-icon">
@@ -57,17 +62,17 @@ export function ResultFeedback({
         )}
       </div>
       <div className="result-text">
-        {isCorrect ? 'Correct!' : 'Not quite...'}
+        {isCorrect ? t('result.correct') : t('result.incorrect')}
       </div>
       {!isCorrect && guessedCity && (
         <div className="wrong-answer-details">
           <div className="correct-answer">
-            The answer was <strong>{correctCity.name}</strong>, {correctCity.country}
+            {t('result.theAnswerWas')} <strong>{getDisplayName(correctCity)}</strong>, {getDisplayCountry(correctCity)}
           </div>
           <div className="guess-comparison">
             <div className="guess-info">
-              <span className="guess-label">Your guess:</span>
-              <span className="guess-city">{guessedCity.name}</span>
+              <span className="guess-label">{t('result.yourGuess')}</span>
+              <span className="guess-city">{getDisplayName(guessedCity)}</span>
               <span className="guess-coords">
                 {formatCoordinate(guessedCity.lat, true)}, {formatCoordinate(guessedCity.lng, false)}
               </span>
@@ -75,14 +80,14 @@ export function ResultFeedback({
             {distance !== null && (
               <div className="distance-info">
                 <span className="distance-value">{distance.toLocaleString()} km</span>
-                <span className="distance-label">off target</span>
+                <span className="distance-label">{t('result.offTarget')}</span>
               </div>
             )}
           </div>
         </div>
       )}
       <button className="next-button" onClick={onNext}>
-        {isLastRound ? 'See Results' : 'Next City'}
+        {isLastRound ? t('result.seeResults') : t('result.nextCity')}
         <svg
           width="20"
           height="20"

@@ -1,0 +1,50 @@
+{
+  "app": {
+    "title": "City Coords",
+    "subtitle": "Guess the capital city from its coordinates",
+    "footer": "{{count}}+ capital cities"
+  },
+  "search": {
+    "placeholder": "Type a city name..."
+  },
+  "coordinates": {
+    "findCity": "Find this city",
+    "latitude": "Latitude",
+    "longitude": "Longitude"
+  },
+  "scoreBoard": {
+    "score": "Score",
+    "round": "Round"
+  },
+  "result": {
+    "correct": "Correct!",
+    "incorrect": "Not quite...",
+    "theAnswerWas": "The answer was",
+    "yourGuess": "Your guess:",
+    "offTarget": "off target",
+    "seeResults": "See Results",
+    "nextCity": "Next City"
+  },
+  "gameOver": {
+    "title": "Game Over!",
+    "playAgain": "Play Again",
+    "table": {
+      "round": "#",
+      "city": "City",
+      "yourGuess": "Your Guess",
+      "result": "Result"
+    },
+    "messages": {
+      "perfect": "Perfect! You're a geography master!",
+      "excellent": "Excellent! You really know your capitals!",
+      "good": "Good job! Keep practicing!",
+      "notBad": "Not bad! Room for improvement.",
+      "needsPractice": "Time to brush up on geography!"
+    }
+  },
+  "language": {
+    "en": "English",
+    "pl": "Polski",
+    "es": "Español"
+  }
+}

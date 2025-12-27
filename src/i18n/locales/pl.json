@@ -1,0 +1,50 @@
+{
+  "app": {
+    "title": "City Coords",
+    "subtitle": "Zgadnij stolicę po jej współrzędnych",
+    "footer": "{{count}}+ stolic świata"
+  },
+  "search": {
+    "placeholder": "Wpisz nazwę miasta..."
+  },
+  "coordinates": {
+    "findCity": "Znajdź to miasto",
+    "latitude": "Szerokość",
+    "longitude": "Długość"
+  },
+  "scoreBoard": {
+    "score": "Wynik",
+    "round": "Runda"
+  },
+  "result": {
+    "correct": "Dobrze!",
+    "incorrect": "Nie tym razem...",
+    "theAnswerWas": "Prawidłowa odpowiedź to",
+    "yourGuess": "Twoja odpowiedź:",
+    "offTarget": "od celu",
+    "seeResults": "Zobacz wyniki",
+    "nextCity": "Następne miasto"
+  },
+  "gameOver": {
+    "title": "Koniec gry!",
+    "playAgain": "Zagraj ponownie",
+    "table": {
+      "round": "#",
+      "city": "Miasto",
+      "yourGuess": "Twoja odpowiedź",
+      "result": "Wynik"
+    },
+    "messages": {
+      "perfect": "Perfekcyjnie! Jesteś mistrzem geografii!",
+      "excellent": "Świetnie! Naprawdę znasz stolice!",
+      "good": "Dobra robota! Ćwicz dalej!",
+      "notBad": "Nieźle! Jest pole do poprawy.",
+      "needsPractice": "Czas odświeżyć wiedzę z geografii!"
+    }
+  },
+  "language": {
+    "en": "English",
+    "pl": "Polski",
+    "es": "Español"
+  }
+}

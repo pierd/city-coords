@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import type { RoundResult } from '../hooks/useGame';
+import { useTranslatedCity } from '../hooks/useTranslatedCity';
 
 interface GameOverProps {
   score: number;
@@ -8,14 +10,16 @@ interface GameOverProps {
 }
 
 export function GameOver({ score, totalRounds, onRestart, history }: GameOverProps) {
+  const { t } = useTranslation();
+  const { getDisplayName, getDisplayCountry } = useTranslatedCity();
   const percentage = Math.round((score / totalRounds) * 100);
 
   const getMessage = () => {
-    if (percentage === 100) return 'Perfect! You\'re a geography master!';
-    if (percentage >= 80) return 'Excellent! You really know your capitals!';
-    if (percentage >= 60) return 'Good job! Keep practicing!';
-    if (percentage >= 40) return 'Not bad! Room for improvement.';
-    return 'Time to brush up on geography!';
+    if (percentage === 100) return t('gameOver.messages.perfect');
+    if (percentage >= 80) return t('gameOver.messages.excellent');
+    if (percentage >= 60) return t('gameOver.messages.good');
+    if (percentage >= 40) return t('gameOver.messages.notBad');
+    return t('gameOver.messages.needsPractice');
   };
 
   const getEmoji = () => {
@@ -29,7 +33,7 @@ export function GameOver({ score, totalRounds, onRestart, history }: GameOverPro
   return (
     <div className="game-over">
       <div className="game-over-emoji">{getEmoji()}</div>
-      <h2 className="game-over-title">Game Over!</h2>
+      <h2 className="game-over-title">{t('gameOver.title')}</h2>
       <div className="final-score">
         <span className="final-score-value">{score}</span>
         <span className="final-score-total">/ {totalRounds}</span>
@@ -41,10 +45,10 @@ export function GameOver({ score, totalRounds, onRestart, history }: GameOverPro
         <table className="stats-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>City</th>
-              <th>Your Guess</th>
-              <th>Result</th>
+              <th>{t('gameOver.table.round')}</th>
+              <th>{t('gameOver.table.city')}</th>
+              <th>{t('gameOver.table.yourGuess')}</th>
+              <th>{t('gameOver.table.result')}</th>
             </tr>
           </thead>
           <tbody>
@@ -52,14 +56,14 @@ export function GameOver({ score, totalRounds, onRestart, history }: GameOverPro
               <tr key={index} className={round.isCorrect ? 'row-correct' : 'row-incorrect'}>
                 <td className="round-number">{index + 1}</td>
                 <td className="city-cell">
-                  <span className="city-name">{round.city.name}</span>
-                  <span className="country-name">{round.city.country}</span>
+                  <span className="city-name">{getDisplayName(round.city)}</span>
+                  <span className="country-name">{getDisplayCountry(round.city)}</span>
                 </td>
                 <td className="guess-cell">
                   {round.guess ? (
                     <>
-                      <span className="city-name">{round.guess.name}</span>
-                      <span className="country-name">{round.guess.country}</span>
+                      <span className="city-name">{getDisplayName(round.guess)}</span>
+                      <span className="country-name">{getDisplayCountry(round.guess)}</span>
                     </>
                   ) : (
                     <span className="no-guess">—</span>
@@ -81,7 +85,7 @@ export function GameOver({ score, totalRounds, onRestart, history }: GameOverPro
       </div>
 
       <button className="restart-button" onClick={onRestart}>
-        Play Again
+        {t('gameOver.playAgain')}
         <svg
           width="20"
           height="20"

@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import type { City } from '../data/capitals';
+import { useTranslatedCity } from '../hooks/useTranslatedCity';
 
 interface CoordinateDisplayProps {
   city: City;
@@ -18,24 +20,27 @@ function formatCoordinate(value: number, type: 'lat' | 'lng'): string {
 }
 
 export function CoordinateDisplay({ city, revealed }: CoordinateDisplayProps) {
+  const { t } = useTranslation();
+  const { getDisplayName, getDisplayCountry } = useTranslatedCity();
+
   return (
     <div className="coordinate-display">
-      <div className="coordinate-label">Find this city</div>
+      <div className="coordinate-label">{t('coordinates.findCity')}</div>
       <div className="coordinates">
         <div className="coordinate">
           <span className="coord-value">{formatCoordinate(city.lat, 'lat')}</span>
-          <span className="coord-label">Latitude</span>
+          <span className="coord-label">{t('coordinates.latitude')}</span>
         </div>
         <div className="coordinate-divider">×</div>
         <div className="coordinate">
           <span className="coord-value">{formatCoordinate(city.lng, 'lng')}</span>
-          <span className="coord-label">Longitude</span>
+          <span className="coord-label">{t('coordinates.longitude')}</span>
         </div>
       </div>
       {revealed && (
         <div className="revealed-city">
-          <span className="city-name">{city.name}</span>
-          <span className="country-name">{city.country}</span>
+          <span className="city-name">{getDisplayName(city)}</span>
+          <span className="country-name">{getDisplayCountry(city)}</span>
         </div>
       )}
     </div>

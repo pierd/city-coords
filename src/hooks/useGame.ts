@@ -1,7 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Fuse from 'fuse.js';
 import { capitals } from '../data/capitals';
 import type { City } from '../data/capitals';
+import {
+  cityNameTranslations,
+  countryNameTranslations,
+  type SupportedLang,
+} from '../data/cityTranslations';
 
 export interface RoundResult {
   city: City;
@@ -22,6 +28,16 @@ export interface GameState {
   history: RoundResult[];
 }
 
+// City with all language variants for search
+interface SearchableCity extends City {
+  name_en: string;
+  name_pl: string;
+  name_es: string;
+  country_en: string;
+  country_pl: string;
+  country_es: string;
+}
+
 // Calculate distance between two coordinates using Haversine formula
 export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371; // Earth's radius in km
@@ -36,6 +52,19 @@ export function calculateDistance(lat1: number, lng1: number, lat2: number, lng2
 }
 
 const TOTAL_ROUNDS = 10;
+
+// Create searchable cities with all language variants
+function createSearchableCities(): SearchableCity[] {
+  return capitals.map((city) => ({
+    ...city,
+    name_en: city.name,
+    name_pl: cityNameTranslations[city.name]?.pl ?? city.name,
+    name_es: cityNameTranslations[city.name]?.es ?? city.name,
+    country_en: city.country,
+    country_pl: countryNameTranslations[city.country]?.pl ?? city.country,
+    country_es: countryNameTranslations[city.country]?.es ?? city.country,
+  }));
+}
 
 function getRandomCity(usedCities: Set<number>): { city: City; index: number } {
   const availableIndices = capitals
@@ -53,6 +82,9 @@ function getRandomCity(usedCities: Set<number>): { city: City; index: number } {
 }
 
 export function useGame() {
+  const { i18n } = useTranslation();
+  const currentLang = (i18n.language?.substring(0, 2) || 'en') as SupportedLang;
+
   const [gameState, setGameState] = useState<GameState>(() => {
     const { city, index } = getRandomCity(new Set());
     return {
@@ -68,21 +100,40 @@ export function useGame() {
     };
   });
 
-  const fuse = useMemo(
-    () =>
-      new Fuse(capitals, {
-        keys: ['name', 'country'],
-        threshold: 0.4,
-        includeScore: true,
-      }),
-    []
-  );
+  // Create searchable cities with all translations
+  const searchableCities = useMemo(() => createSearchableCities(), []);
+
+  // Create Fuse instance that searches across all language variants
+  // Priority: current language fields first, then other languages
+  const fuse = useMemo(() => {
+    const getSearchKeys = (lang: SupportedLang) => {
+      // Prioritize current language, then add others
+      const langOrder = [lang, 'en', 'pl', 'es'].filter((l, i, arr) => arr.indexOf(l) === i);
+
+      return langOrder.flatMap((l) => [
+        { name: `name_${l}`, weight: l === lang ? 2 : 1 },
+        { name: `country_${l}`, weight: l === lang ? 1.5 : 0.5 },
+      ]);
+    };
+
+    return new Fuse(searchableCities, {
+      keys: getSearchKeys(currentLang),
+      threshold: 0.4,
+      includeScore: true,
+    });
+  }, [searchableCities, currentLang]);
 
   const searchCities = useCallback(
     (query: string): City[] => {
       if (!query.trim()) return [];
       const results = fuse.search(query, { limit: 5 });
-      return results.map((r) => r.item);
+      // Return the original City objects (without the extra search fields)
+      return results.map((r) => ({
+        name: r.item.name,
+        country: r.item.country,
+        lat: r.item.lat,
+        lng: r.item.lng,
+      }));
     },
     [fuse]
   );

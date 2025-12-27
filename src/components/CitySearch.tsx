@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { City } from '../data/capitals';
+import { useTranslatedCity } from '../hooks/useTranslatedCity';
 
 interface CitySearchProps {
   onSearch: (query: string) => City[];
@@ -8,6 +10,8 @@ interface CitySearchProps {
 }
 
 export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
+  const { t } = useTranslation();
+  const { getDisplayName, getDisplayCountry } = useTranslatedCity();
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<City[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -105,7 +109,7 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length > 0 && setIsOpen(true)}
-          placeholder="Type a city name..."
+          placeholder={t('search.placeholder')}
           disabled={disabled}
           className="search-input"
           autoComplete="off"
@@ -137,8 +141,8 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
               onClick={() => handleSelect(city)}
               onMouseEnter={() => setSelectedIndex(index)}
             >
-              <span className="suggestion-city">{city.name}</span>
-              <span className="suggestion-country">{city.country}</span>
+              <span className="suggestion-city">{getDisplayName(city)}</span>
+              <span className="suggestion-country">{getDisplayCountry(city)}</span>
             </li>
           ))}
         </ul>
