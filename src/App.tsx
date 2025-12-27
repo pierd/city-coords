@@ -149,6 +149,7 @@ function App() {
             totalRounds={totalRounds}
             medianDistance={medianDistance}
             onRestart={resetGame}
+            onBackToMenu={goToMenu}
             history={history}
             seed={gameState.seed}
             isChallenge={gameState.isChallenge}
