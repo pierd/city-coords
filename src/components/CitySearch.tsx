@@ -125,6 +125,8 @@ export function CitySearch({ onSearch, onSelect, disabled }: CitySearchProps) {
           disabled={disabled}
           className="search-input"
           autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
           spellCheck={false}
         />
         <div className="search-icon">
