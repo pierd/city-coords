@@ -8,6 +8,7 @@ import {
   countryNameTranslations,
   type SupportedLang,
 } from '../data/cityTranslations';
+import { countryAliases } from '../data/countryAliases';
 import type { GameMode } from '../types/gameMode';
 import { GAME_MODE_CONFIGS } from '../types/gameMode';
 import {
@@ -83,6 +84,10 @@ interface SearchableCity extends City {
   country_en: string;
   country_pl: string;
   country_es: string;
+  // Country aliases for fuzzy search (initialisms, alternative names)
+  country_aliases_en: string;
+  country_aliases_pl: string;
+  country_aliases_es: string;
 }
 
 // Calculate distance between two coordinates using Haversine formula
@@ -111,15 +116,22 @@ export function calculateMedian(values: number[]): number | null {
 
 // Create searchable cities with all language variants
 function createSearchableCities(): SearchableCity[] {
-  return capitals.map((city) => ({
-    ...city,
-    name_en: city.name,
-    name_pl: cityNameTranslations[city.name]?.pl ?? city.name,
-    name_es: cityNameTranslations[city.name]?.es ?? city.name,
-    country_en: city.country,
-    country_pl: countryNameTranslations[city.country]?.pl ?? city.country,
-    country_es: countryNameTranslations[city.country]?.es ?? city.country,
-  }));
+  return capitals.map((city) => {
+    const aliases = countryAliases[city.country] ?? {};
+    return {
+      ...city,
+      name_en: city.name,
+      name_pl: cityNameTranslations[city.name]?.pl ?? city.name,
+      name_es: cityNameTranslations[city.name]?.es ?? city.name,
+      country_en: city.country,
+      country_pl: countryNameTranslations[city.country]?.pl ?? city.country,
+      country_es: countryNameTranslations[city.country]?.es ?? city.country,
+      // Join aliases with space for Fuse.js to search through
+      country_aliases_en: (aliases.en ?? []).join(' '),
+      country_aliases_pl: (aliases.pl ?? []).join(' '),
+      country_aliases_es: (aliases.es ?? []).join(' '),
+    };
+  });
 }
 
 function getCityForMode(
@@ -281,13 +293,18 @@ export function useGame() {
       return langOrder.flatMap((l) => [
         { name: `name_${l}`, weight: l === lang ? 2 : 1 },
         { name: `country_${l}`, weight: l === lang ? 1.5 : 0.5 },
+        // Include country aliases (initialisms, alternative names) with same weight as country
+        { name: `country_aliases_${l}`, weight: l === lang ? 1.5 : 0.5 },
       ]);
     };
 
     return new Fuse(searchableCities, {
       keys: getSearchKeys(currentLang),
-      threshold: 0.4,
+      threshold: 0.3,
       includeScore: true,
+      // Better handling of short search terms (e.g., "US", "UK")
+      minMatchCharLength: 1,
+      ignoreLocation: true,
     });
   }, [searchableCities, currentLang]);
 
