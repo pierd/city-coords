@@ -70,6 +70,9 @@
       "won": "Won",
       "streak": "Streak",
       "maxStreak": "Best"
+    },
+    "alsoLike": {
+      "title": "You might also like"
     }
   },
   "modes": {

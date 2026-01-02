@@ -84,6 +84,19 @@ export function ModeSelector({ onSelectMode }: ModeSelectorProps) {
           </div>
         </div>
       )}
+
+      <div className="also-like-section">
+        <span className="also-like-title">{t('modeSelector.alsoLike.title')}</span>
+        <a
+          href="https://borders.lessismore.studio/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="also-like-link"
+        >
+          <span className="also-like-icon">🗺️</span>
+          <span className="also-like-name">Border Guess</span>
+        </a>
+      </div>
     </div>
   );
 }

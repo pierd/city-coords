@@ -70,6 +70,9 @@
       "won": "Ganados",
       "streak": "Racha",
       "maxStreak": "Mejor"
+    },
+    "alsoLike": {
+      "title": "También te puede gustar"
     }
   },
   "modes": {
