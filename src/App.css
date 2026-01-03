@@ -95,50 +95,6 @@ body {
   50% { opacity: 1; transform: scale(1.1); }
 }
 
-/* Language Selector */
-.language-selector {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  display: flex;
-  gap: 0.25rem;
-  z-index: 100;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 0.25rem;
-}
-
-.lang-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.6;
-}
-
-.lang-btn:hover {
-  opacity: 1;
-  background: var(--bg-tertiary);
-}
-
-.lang-btn.active {
-  opacity: 1;
-  background: var(--accent-glow);
-  box-shadow: 0 0 10px var(--accent-glow);
-}
-
-.lang-flag {
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
 /* Header */
 .header {
   padding: 2rem 1.5rem 1rem;
